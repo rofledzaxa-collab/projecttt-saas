@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+
 export function securityHeaders() {
   return {
     "X-Frame-Options": "DENY",
@@ -13,4 +15,41 @@ export function securityHeaders() {
       "frame-ancestors 'none'"
     ].join("; ")
   } as const;
+}
+
+type CookieOpts = {
+  httpOnly?: boolean;
+  secure?: boolean;
+  sameSite?: "lax" | "strict" | "none";
+  path?: string;
+  maxAge?: number;
+};
+
+/**
+ * Set auth cookies (access + refresh).
+ * Works for App Router route handlers.
+ */
+export function setAuthCookies(accessToken: string, refreshToken: string) {
+  const jar: any = (cookies as any)();
+
+  const common: CookieOpts = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/"
+  };
+
+  jar.set("access_token", accessToken, { ...common, maxAge: 60 * 15 }); // 15m
+  jar.set("refresh_token", refreshToken, { ...common, maxAge: 60 * 60 * 24 * 14 }); // 14d
+}
+
+/**
+ * Clear auth cookies (access + refresh).
+ * Some call sites import this name.
+ */
+export function clearAuthCookies() {
+  const jar: any = (cookies as any)();
+
+  jar.set("access_token", "", { path: "/", maxAge: 0 });
+  jar.set("refresh_token", "", { path: "/", maxAge: 0 });
 }
