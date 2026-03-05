@@ -4,10 +4,12 @@ import { verifyAccessToken } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 export async function GET(req: Request) {
-  const token = cookies().get("access_token")?.value;
+  const jar = await cookies();
+  const token = jar.get("access_token")?.value;
   if (!token) return new NextResponse("Unauthorized", { status: 401 });
 
   const payload = verifyAccessToken(token);
+
   const url = new URL(req.url);
   const days = Math.max(1, Math.min(365, Number(url.searchParams.get("days") ?? "30")));
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
