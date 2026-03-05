@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3000",
-    "build": "prisma generate && next build",
-    "start": "sh -c \"npx prisma migrate deploy && node prisma/seed.mjs || true; next start -p ${PORT:-3000}\"",
-    "lint": "next lint"
+    "dev": "npx next dev -p 3000",
+    "build": "npx prisma generate && npx next build",
+    "start": "sh -c \"npx prisma migrate deploy || true; node prisma/seed.mjs || true; npx next start -p ${PORT:-3000}\"",
+    "lint": "npx next lint"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
