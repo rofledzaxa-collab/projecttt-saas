@@ -5,7 +5,7 @@ function cn(...classes: Array<string | undefined | false | null>) {
 }
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "default" | "outline" | "ghost";
+  variant?: "default" | "secondary" | "outline" | "ghost";
   size?: "default" | "sm" | "lg";
 };
 
@@ -19,8 +19,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20",
           "disabled:pointer-events-none disabled:opacity-50",
           variant === "default" && "bg-black text-white hover:bg-black/90",
-          variant === "outline" &&
-            "border border-black/20 bg-white hover:bg-black/5",
+          variant === "secondary" && "bg-black/5 text-black hover:bg-black/10",
+          variant === "outline" && "border border-black/20 bg-white hover:bg-black/5",
           variant === "ghost" && "bg-transparent hover:bg-black/5",
           size === "default" && "h-10 px-4 py-2",
           size === "sm" && "h-9 px-3",
