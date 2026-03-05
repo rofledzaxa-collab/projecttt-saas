@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { revokeRefreshToken } from "@/lib/auth";
-import { clearAuthCookies } from "@/lib/security";
 
 export async function POST() {
-  const jar = await cookies(); // Next 15: cookies() can be async in types
+  const jar = await cookies();
   const rt = jar.get("refresh_token")?.value;
 
   if (rt) await revokeRefreshToken(rt);
-  clearAuthCookies();
+
+  // Clear cookies (no dependency on lib/security exports)
+  jar.set("access_token", "", { path: "/", maxAge: 0 });
+  jar.set("refresh_token", "", { path: "/", maxAge: 0 });
 
   return NextResponse.json({ ok: true });
 }
