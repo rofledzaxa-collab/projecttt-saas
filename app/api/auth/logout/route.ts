@@ -8,7 +8,7 @@ export async function POST() {
 
   if (rt) await revokeRefreshToken(rt);
 
-  // Clear cookies (no dependency on lib/security exports)
+  // Clear cookies
   jar.set("access_token", "", { path: "/", maxAge: 0 });
   jar.set("refresh_token", "", { path: "/", maxAge: 0 });
 
