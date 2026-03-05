@@ -1,15 +1,22 @@
-import "./globals.css";
+// app/layout.tsx
 import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "projecttt — SaaS Analytics",
-  description: "Premium SaaS analytics dashboard with AI scoring."
+  title: "projecttt",
+  description: "SaaS Analytics",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>{children}</body>
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        {children}
+      </body>
     </html>
   );
 }
