@@ -3,6 +3,7 @@
 node_modules
 .next
 .git
-*.log
-Dockerfile
+.gitignore
+npm-debug.log
+Dockerfile*
 docker-compose.yml
