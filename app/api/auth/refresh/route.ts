@@ -1,20 +1,27 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { isRefreshTokenValid, verifyRefreshToken, signAccessToken, setAuthCookies } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import {
+  isRefreshTokenValid,
+  rotateRefreshToken,
+  signAccessToken
+} from "@/lib/auth";
+import { setAuthCookies } from "@/lib/security";
 
 export async function POST() {
-  const rt = cookies().get("refresh_token")?.value;
+  // Next 15: cookies() может быть async в типах -> всегда await
+  const jar = await cookies();
+  const rt = jar.get("refresh_token")?.value;
+
   if (!rt) return new NextResponse("Missing refresh token", { status: 401 });
 
   const ok = await isRefreshTokenValid(rt);
-  if (!ok) return new NextResponse("Refresh token revoked", { status: 401 });
+  if (!ok) return new NextResponse("Invalid refresh token", { status: 401 });
 
-  const payload = verifyRefreshToken(rt);
-  const user = await prisma.user.findUnique({ where: { id: payload.sub } });
-  if (!user) return new NextResponse("User missing", { status: 401 });
+  // Меняем refresh токен (ротация) и выдаём новый access
+  const { refreshToken, userId } = await rotateRefreshToken(rt);
+  const accessToken = await signAccessToken(userId);
 
-  const access = signAccessToken({ sub: user.id, email: user.email, role: user.role, plan: user.plan });
-  setAuthCookies(access, rt);
+  setAuthCookies(accessToken, refreshToken);
+
   return NextResponse.json({ ok: true });
 }
