@@ -8,7 +8,8 @@ import { audit } from "@/lib/api-keys";
 const schema = z.object({ id: z.string().min(10) });
 
 export async function POST(req: Request) {
-  const token = cookies().get("access_token")?.value;
+  const jar = await cookies();
+  const token = jar.get("access_token")?.value;
   if (!token) return new NextResponse("Unauthorized", { status: 401 });
 
   const payload = verifyAccessToken(token);

@@ -46,7 +46,8 @@ export async function POST(req: Request) {
 
   // 2) fallback: cookie auth (browser logged in)
   if (!userId) {
-    const token = cookies().get("access_token")?.value;
+    const jar = await cookies();
+    const token = jar.get("access_token")?.value;
     if (!token) return new NextResponse("Unauthorized", { status: 401, headers: extraHeaders });
 
     try {

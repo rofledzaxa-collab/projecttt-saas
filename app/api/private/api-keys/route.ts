@@ -10,7 +10,8 @@ const createSchema = z.object({
 });
 
 export async function GET() {
-  const token = cookies().get("access_token")?.value;
+  const jar = await cookies();
+  const token = jar.get("access_token")?.value;
   if (!token) return new NextResponse("Unauthorized", { status: 401 });
 
   const payload = verifyAccessToken(token);

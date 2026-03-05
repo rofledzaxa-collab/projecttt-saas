@@ -7,7 +7,8 @@ import { z } from "zod";
 const schema = z.object({ plan: z.enum(["FREE","PRO"]) });
 
 export async function POST(req: Request) {
-  const token = cookies().get("access_token")?.value;
+  const jar = await cookies();
+const token = jar.get("access_token")?.value;
   if (!token) return new NextResponse("Unauthorized", { status: 401 });
 
   const payload = verifyAccessToken(token);
