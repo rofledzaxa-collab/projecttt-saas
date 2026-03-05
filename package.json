@@ -6,10 +6,8 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "prisma generate && next build",
-    "start": "next start -p $PORT",
-    "lint": "next lint",
-    "db:migrate": "prisma migrate deploy && prisma generate",
-    "db:seed": "node prisma/seed.mjs"
+    "start": "sh -c \"npx prisma migrate deploy && node prisma/seed.mjs || true; next start -p ${PORT:-3000}\"",
+    "lint": "next lint"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -22,14 +20,13 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.3",
-    "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cookie": "^0.6.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.454.0",
-    "next": "^15.1.6",
+    "next": "^15.5.12",
     "pino": "^9.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -38,13 +35,14 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.12.13",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
     "eslint": "^9.7.0",
-    "eslint-config-next": "^15.1.6",
+    "eslint-config-next": "^15.5.12",
     "postcss": "^8.4.39",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.10",
