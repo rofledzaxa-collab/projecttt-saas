@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { verifyPassword, signAccessToken, signRefreshToken, setAuthCookies, persistRefreshToken } from "@/lib/auth";
-import { logger } from "@/lib/logger";
+import {
+  verifyPassword,
+  signAccessToken,
+  signRefreshToken,
+  persistRefreshToken,
+  setAuthCookies
+} from "@/lib/auth";
 
 const schema = z.object({
   email: z.string().email(),
@@ -10,25 +15,23 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  try {
-    const body = schema.parse(await req.json());
-    const email = body.email.toLowerCase();
+  const body = schema.safeParse(await req.json());
+  if (!body.success) return new NextResponse("Bad Request", { status: 400 });
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return new NextResponse("Invalid credentials", { status: 401 });
+  const email = body.data.email.toLowerCase();
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return new NextResponse("Invalid credentials", { status: 401 });
 
-    const ok = await verifyPassword(body.password, user.passwordHash);
-    if (!ok) return new NextResponse("Invalid credentials", { status: 401 });
+  const ok = await verifyPassword(body.data.password, user.passwordHash);
+  if (!ok) return new NextResponse("Invalid credentials", { status: 401 });
 
-    const payload = { sub: user.id, email: user.email, role: user.role, plan: user.plan } as const;
-    const access = signAccessToken(payload);
-    const refresh = signRefreshToken(payload);
-    await persistRefreshToken(user.id, refresh);
-    setAuthCookies(access, refresh);
+  const payload = { sub: user.id, email: user.email, role: user.role, plan: user.plan } as const;
 
-    return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    logger.warn({ err: e }, "login_failed");
-    return new NextResponse(e?.message ?? "Bad Request", { status: 400 });
-  }
+  const access = signAccessToken(payload);
+  const refresh = signRefreshToken(payload);
+
+  await persistRefreshToken(user.id, refresh);
+  await setAuthCookies(access, refresh);
+
+  return NextResponse.json({ ok: true });
 }

@@ -6,6 +6,7 @@ import {
   signAccessToken,
   signRefreshToken,
   persistRefreshToken,
+  revokeRefreshToken,
   setAuthCookies
 } from "@/lib/auth";
 
@@ -18,19 +19,15 @@ export async function POST() {
   const ok = await isRefreshTokenValid(rt);
   if (!ok) return new NextResponse("Invalid refresh token", { status: 401 });
 
-  // Decode refresh token -> user payload
-  const user = verifyRefreshToken(rt); // { sub, email, role, plan }
+  const user = verifyRefreshToken(rt);
 
-  // Issue new tokens
   const accessToken = signAccessToken(user);
   const refreshToken = signRefreshToken(user);
 
-  // Persist new refresh token and invalidate old one (last-token-wins)
+  await revokeRefreshToken(rt);
   await persistRefreshToken(user.sub, refreshToken);
-  // optional: revoke old token to keep DB clean
-  // await revokeRefreshToken(rt);
 
-  setAuthCookies(accessToken, refreshToken);
+  await setAuthCookies(accessToken, refreshToken);
 
   return NextResponse.json({ ok: true });
 }
